@@ -1,4 +1,5 @@
 package idv.brandy.model
+import arrow.optics.Lens
 import org.hibernate.annotations.GenericGenerator
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -13,3 +14,4 @@ class Fruit(){
     lateinit var name:String
     var description:String=""
 }
+

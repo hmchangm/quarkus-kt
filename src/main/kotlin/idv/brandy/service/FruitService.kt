@@ -1,11 +1,7 @@
 package idv.brandy.service
 import arrow.core.Either
-import arrow.core.rightIfNotNull
-import arrow.core.rightIfNull
 import idv.brandy.model.Fruit
 import idv.brandy.repository.FruitRepository
-import java.lang.Exception
-import java.lang.RuntimeException
 import javax.enterprise.context.ApplicationScoped
 
 @ApplicationScoped

@@ -1,7 +1,6 @@
 package idv.brandy.repository
 
 import arrow.core.Option
-import arrow.core.toOption
 import idv.brandy.model.Fruit
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase
 import javax.enterprise.context.ApplicationScoped

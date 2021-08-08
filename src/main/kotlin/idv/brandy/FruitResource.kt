@@ -32,8 +32,8 @@ class FruitResource {
     @Transactional
     fun modify(@PathParam("uuid") uuid:String, fruit: Fruit): MutableList<Fruit> {
         val myFruit = fruitRepository.findById(uuid)
-        myFruit.name= fruit.name
-        fruitRepository.persist(myFruit)
+        val newFruit = myFruit.copy(name=fruit.name,description = fruit.description)
+        fruitRepository.persist(newFruit)
         return fruitRepository.findAll().list()
     }
 

@@ -24,20 +24,18 @@ class FruitFpTest {
 
     @Test
     fun testAdd() {
-        RestAssured.given()
+        val response = RestAssured.given()
             .body("{\"name\": \"Pear\", \"description\": \"Winter fruit\"}")
             .header("Content-Type", MediaType.APPLICATION_JSON)
             .`when`()
             .post("/v2/fruits")
             .then()
-            .statusCode(201)
+            .statusCode(201).extract().response()
+        val uuid = response.jsonPath().getString("uuid")
 
         RestAssured.given().header("Content-Type", MediaType.APPLICATION_JSON)
-            .`when`()["/v2/fruits"]
-            .then().statusCode(200)
-            .body(
-                "$.size()", CoreMatchers.`is`(3),
-                "name", Matchers.containsInAnyOrder("Pear","Apple","Pineapple")
-            )
+            .`when`().delete("/v2/fruits/$uuid")
+            .then().statusCode(204)
+
     }
 }

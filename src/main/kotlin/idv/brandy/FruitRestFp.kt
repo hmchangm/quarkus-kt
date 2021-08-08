@@ -1,9 +1,11 @@
 package idv.brandy
 
+import arrow.core.Either
 import arrow.core.None
 import arrow.core.Some
 import idv.brandy.model.Fruit
 import idv.brandy.repository.FruitRepository
+import idv.brandy.service.FruitService
 import javax.inject.Inject
 import javax.transaction.Transactional
 import javax.ws.rs.*
@@ -13,12 +15,13 @@ import javax.ws.rs.core.Response
 @Path("/v2/fruits")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-class FruitRestFp {
-    @Inject
-    lateinit var fruitRepository: FruitRepository
+class FruitRestFp (val fruitService: FruitService, val fruitRepository: FruitRepository){
 
     @GET
-    suspend fun list(): MutableList<Fruit> = fruitRepository.findAll().list()
+    suspend fun list():Response = when(val either = fruitService.findAll()){
+        is Either.Left -> noThisFruitResponse()
+        is Either.Right ->  either.value.let{Response.ok(it).build()}
+    }
 
     @POST
     @Transactional
@@ -33,7 +36,7 @@ class FruitRestFp {
     suspend fun modify(@PathParam("uuid") uuid: String, fruit: Fruit): Response {
         return when (val fruitOption = fruitRepository.findByUuid(uuid)) {
             is None -> noThisFruitResponse()
-            is Some -> return fruitOption.copy().value.let { it.name = fruit.name; it }
+            is Some -> return fruitOption.value.copy(name=fruit.name)
                 .let { fruitRepository.persist(it); Response.ok(it).build() }
         }
     }

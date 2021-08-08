@@ -14,5 +14,3 @@ class FruitService (val fruitRepository: FruitRepository){
     fun findAll() : Either<RuntimeException, List<Fruit>> = Either.catch{
       fruitRepository.findAll().list<Fruit>()}.mapLeft { RuntimeException(it) }
 }
-
-object RepositoryError

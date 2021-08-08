@@ -6,6 +6,7 @@ import arrow.core.Some
 import idv.brandy.model.Fruit
 import idv.brandy.repository.FruitRepository
 import idv.brandy.service.FruitService
+import java.lang.RuntimeException
 import javax.inject.Inject
 import javax.transaction.Transactional
 import javax.ws.rs.*
@@ -15,12 +16,12 @@ import javax.ws.rs.core.Response
 @Path("/v2/fruits")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-class FruitRestFp (val fruitService: FruitService, val fruitRepository: FruitRepository){
+class FruitRestFp(val fruitService: FruitService, val fruitRepository: FruitRepository) {
 
     @GET
-    suspend fun list():Response = when(val either = fruitService.findAll()){
-        is Either.Left -> noThisFruitResponse()
-        is Either.Right ->  either.value.let{Response.ok(it).build()}
+    suspend fun list(): List<Fruit> = when (val either = fruitService.findAll()) {
+        is Either.Left -> throw RuntimeException("data store error", either.value)
+        is Either.Right -> either.value
     }
 
     @POST
@@ -36,7 +37,7 @@ class FruitRestFp (val fruitService: FruitService, val fruitRepository: FruitRep
     suspend fun modify(@PathParam("uuid") uuid: String, fruit: Fruit): Response {
         return when (val fruitOption = fruitRepository.findByUuid(uuid)) {
             is None -> noThisFruitResponse()
-            is Some -> return fruitOption.value.copy(name=fruit.name)
+            is Some -> return fruitOption.value.copy(name = fruit.name)
                 .let { fruitRepository.persist(it); Response.ok(it).build() }
         }
     }

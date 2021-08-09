@@ -12,19 +12,18 @@ class FruitService(val fruitRepository: FruitRepository) {
 
     fun findAll() = Either.catch {
         fruitRepository.findAll().list<Fruit>()
-    }.mapLeft { it }
+    }
 
     fun save(fruit: Fruit) = Either.catch {
         fruitRepository.persist(fruit)
-    }.mapLeft { it }
+    }
 
     fun findByUuid(uuid: String) = Either.catch {
         fruitRepository.findByUuid(uuid)
-    }.mapLeft { it }
-
+    }
     fun delete(fruit: Fruit) = Either.catch {
         fruitRepository.delete(fruit)
-    }.mapLeft { it }
+    }
 
     fun modify(uuid: String, fruit: Fruit) = Either.catch {
         when (val either = findByUuid(uuid)) {

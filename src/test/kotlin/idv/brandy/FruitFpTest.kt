@@ -25,7 +25,7 @@ class FruitFpTest {
     @Test
     fun testAdd() {
         val response = RestAssured.given()
-            .body("{\"name\": \"Pear\", \"description\": \"Winter fruit\"}")
+            .body("""{"name": "Pear", "description": "Winter fruit"}""")
             .header("Content-Type", MediaType.APPLICATION_JSON)
             .`when`()
             .post("/v2/fruits")

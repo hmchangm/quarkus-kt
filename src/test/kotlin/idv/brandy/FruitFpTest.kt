@@ -37,5 +37,19 @@ class FruitFpTest {
             .`when`().delete("/v2/fruits/$uuid")
             .then().statusCode(204)
 
+
+    }
+    @Test
+    fun testGet(){
+        RestAssured.given()
+            .header("Content-Type", MediaType.APPLICATION_JSON)
+            .`when`()["/v2/fruits/AAAFBBD"]
+            .then()
+            .statusCode(500).extract().response()
+        RestAssured.given()
+            .header("Content-Type", MediaType.APPLICATION_JSON)
+            .`when`()["/v2/fruits/fasgrgwrarffdff"]
+            .then()
+            .statusCode(200).extract().response()
     }
 }

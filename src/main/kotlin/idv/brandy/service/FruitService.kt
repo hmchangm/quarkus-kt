@@ -1,18 +1,26 @@
 package idv.brandy.service
 
 import arrow.core.Either
-import arrow.core.rightIfNotNull
-import arrow.core.rightIfNull
 import idv.brandy.model.Fruit
 import idv.brandy.repository.FruitRepository
-import java.lang.Exception
-import java.lang.RuntimeException
 import javax.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
 class FruitService(val fruitRepository: FruitRepository) {
 
-    fun findAll(): Either<Exception, List<Fruit>> = Either.catch {
+    fun findAll() = Either.catch {
         fruitRepository.findAll().list<Fruit>()
-    }.mapLeft {  Exception(it) }
+    }.mapLeft { it }
+
+    fun save(fruit: Fruit) = Either.catch {
+        fruitRepository.persist(fruit)
+    }.mapLeft { it }
+
+    fun findByUuid(uuid: String) = Either.catch {
+        fruitRepository.findByUuid(uuid)
+    }.mapLeft { it }
+
+    fun delete(fruit: Fruit) = Either.catch {
+        fruitRepository.delete(fruit)
+    }.mapLeft { it }
 }

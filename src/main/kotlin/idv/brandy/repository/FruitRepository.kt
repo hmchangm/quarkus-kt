@@ -9,6 +9,10 @@ import javax.enterprise.context.ApplicationScoped
 @ApplicationScoped
 class FruitRepository : PanacheRepositoryBase<Fruit, String> {
     fun findByUuid(uuid: String): Option<Fruit> =
-        Option.fromNullable(find("uuid", uuid).firstResultOptional<Fruit>().orElse(null))
+        Option.fromNullable(
+            find("uuid", uuid)
+                .firstResultOptional<Fruit>().orElse(null)
+        )
+
     fun findByName(name: String) = find("name", name).firstResult<Fruit>()
 }

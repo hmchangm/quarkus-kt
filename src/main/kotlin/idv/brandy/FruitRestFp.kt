@@ -32,12 +32,9 @@ class FruitRestFp(val fruitService: FruitService) {
     @Path("/{uuid}")
     @Transactional
     fun modify(@PathParam("uuid") uuid: String, fruit: Fruit): Fruit =
-        when (val either = fruitService.findByUuid(uuid)) {
+        when (val either = fruitService.modify(uuid, fruit)) {
             is Either.Left -> throw RuntimeException("data store access error", either.value)
-            is Either.Right -> when (val opt = either.value) {
-                is None -> throw RuntimeException("no this fruit $uuid")
-                is Some -> opt.value.copy(name = fruit.name).let { fruitService.save(it);it }
-            }
+            is Either.Right -> either.value
         }
 
 

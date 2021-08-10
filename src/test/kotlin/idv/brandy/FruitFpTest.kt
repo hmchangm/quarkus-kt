@@ -5,6 +5,7 @@ import io.restassured.RestAssured
 import org.hamcrest.CoreMatchers
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
+import org.locationtech.jts.util.Assert
 import javax.ws.rs.core.MediaType
 
 @QuarkusTest
@@ -55,9 +56,9 @@ class FruitFpTest {
 
     @Test
     fun testDeleteError(){
-      val respone =   RestAssured.given().header("Content-Type", MediaType.APPLICATION_JSON)
+      val response =   RestAssured.given().header("Content-Type", MediaType.APPLICATION_JSON)
             .`when`().delete("/v2/fruits/BBBBDDASDAS")
-            .then().statusCode(500).extract().response()
-        println("CCCC"+ respone.body)
+            .then().statusCode(500).extract().response().body.print()
+        Assert.isTrue(response.contains("NoThisFruit"))
     }
 }

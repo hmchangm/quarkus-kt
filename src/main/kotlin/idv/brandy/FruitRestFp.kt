@@ -29,9 +29,9 @@ class FruitRestFp(val fruitService: FruitService) {
     @PUT
     @Path("/{uuid}")
     @Transactional
-    fun modify(@PathParam("uuid") uuid: String, fruit: Fruit): Response? =
+    fun modify(@PathParam("uuid") uuid: String, fruit: Fruit): Response =
         when (val e = fruitService.modify(uuid, fruit)) {
-            is Either.Left -> throw RuntimeException("data store access error ${e.value}")
+            is Either.Left -> Response.serverError().entity("data store access error ${e.value}").build()
             is Either.Right -> Response.ok(e.value).build()
         }
 

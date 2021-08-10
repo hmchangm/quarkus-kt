@@ -11,18 +11,18 @@ import javax.enterprise.context.ApplicationScoped
 @ApplicationScoped
 class FruitService(val fruitRepository: FruitRepository) {
     fun findAll(): Either<DatabaseProblem, List<Fruit>> =
-        Either.catch { fruitRepository.findAll().list<Fruit>() }.mapLeft { DatabaseProblem }
+        Either.catch { fruitRepository.findAll().list<Fruit>() }.mapLeft { DatabaseProblem(it) }
 
     fun save(fruit: Fruit): Either<DatabaseProblem, Fruit> =
-        Either.catch { fruitRepository.persist(fruit);fruit }.mapLeft { DatabaseProblem }
+        Either.catch { fruitRepository.persist(fruit);fruit }.mapLeft { DatabaseProblem(it) }
 
     fun findByUuid(uuid: String): Either<FruitError, Fruit> = fruitRepository.findByUuid(uuid)
 
     fun delete(fruit: Fruit): Either<DatabaseProblem, Unit> =
-        Either.catch { fruitRepository.delete(fruit) }.mapLeft { DatabaseProblem }
+        Either.catch { fruitRepository.delete(fruit) }.mapLeft { DatabaseProblem(it) }
 
     fun modify(uuid: String, fruit: Fruit): Either<FruitError, Fruit> =
-        findByUuid(uuid).map { it.copy(name = fruit.name) }.map { save(it) }.flatMap { it }
+        findByUuid(uuid).map{it.name=fruit.name;save(it)}.flatMap { it }
 
     fun deleteByUuid(uuid: String): Either<FruitError, Unit> =
         findByUuid(uuid).map { delete(it) }.flatMap { it }

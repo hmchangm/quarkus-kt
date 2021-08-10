@@ -15,9 +15,8 @@ class FruitRepository : PanacheRepositoryBase<Fruit, String> {
                     true -> Either.Right(it.get())
                     false -> Either.Left(FruitError.NoThisFruit(uuid))
                 }
-            }, { return Either.Left(FruitError.DatabaseProblem) }
+            }, { return Either.Left(FruitError.DatabaseProblem(it)) }
         )
     }
 
-    fun findByName(name: String) = find("name", name).firstResult<Fruit>()
 }

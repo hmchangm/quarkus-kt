@@ -37,11 +37,32 @@ class FruitFpTest {
         RestAssured.given().header("Content-Type", MediaType.APPLICATION_JSON)
             .`when`().delete("/v2/fruits/$uuid")
             .then().statusCode(204)
+    }
 
+    @Test
+    fun testModify() {
+        val response = RestAssured.given()
+            .body("""{"id":"fasgrgwrarffdff","name": "AnotherName", "description": "DF"}""")
+            .header("Content-Type", MediaType.APPLICATION_JSON)
+            .`when`()
+            .put("/v2/fruits/fasgrgwrarffdff")
+            .then()
+            .extract().response()
+        println("BBB"+response.body.print())
+
+        RestAssured.given()
+            .body("""{"id":"fasgrgwrarffdff","name": "Pineapple", "description": "DFS"}""")
+            .header("Content-Type", MediaType.APPLICATION_JSON)
+            .`when`()
+            .put("/v2/fruits/fasgrgwrarffdff")
+            .then()
+            .statusCode(200)
 
     }
+
+
     @Test
-    fun testGet(){
+    fun testGet() {
         RestAssured.given()
             .header("Content-Type", MediaType.APPLICATION_JSON)
             .`when`()["/v2/fruits/AAAFBBD"]
@@ -55,8 +76,8 @@ class FruitFpTest {
     }
 
     @Test
-    fun testDeleteError(){
-      val response =   RestAssured.given().header("Content-Type", MediaType.APPLICATION_JSON)
+    fun testDeleteError() {
+        val response = RestAssured.given().header("Content-Type", MediaType.APPLICATION_JSON)
             .`when`().delete("/v2/fruits/BBBBDDASDAS")
             .then().statusCode(500).extract().response().body.print()
         Assert.isTrue(response.contains("NoThisFruit"))

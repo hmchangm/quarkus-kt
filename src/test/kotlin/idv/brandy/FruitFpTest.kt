@@ -52,4 +52,12 @@ class FruitFpTest {
             .then()
             .statusCode(200).extract().response()
     }
+
+    @Test
+    fun testDeleteError(){
+      val respone =   RestAssured.given().header("Content-Type", MediaType.APPLICATION_JSON)
+            .`when`().delete("/v2/fruits/BBBBDDASDAS")
+            .then().statusCode(500).extract().response()
+        println("CCCC"+ respone.body)
+    }
 }

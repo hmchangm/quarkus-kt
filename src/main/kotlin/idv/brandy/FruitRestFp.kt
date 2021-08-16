@@ -14,50 +14,44 @@ import javax.ws.rs.core.Response
 class FruitRestFp(val fruitService: FruitService) {
 
     @GET
-    fun list(): List<Fruit> = when (val either = fruitService.findAll()) {
-        is Either.Left -> throw RuntimeException("data store access error ${either.value}" )
-        is Either.Right -> either.value
+    fun list(): Response = when (val e = fruitService.findAll()) {
+        is Either.Left -> throw RuntimeException("data store access error ${e.value}")
+        is Either.Right -> Response.ok(e.value).build()
     }
 
     @POST
     @Transactional
-    fun add(fruit: Fruit): Response = when (val either = fruitService.save(fruit)) {
-        is Either.Left -> throw RuntimeException("data store access error ${either.value}")
+    fun add(fruit: Fruit): Response = when (val e = fruitService.save(fruit)) {
+        is Either.Left -> throw RuntimeException("data store access error ${e.value}")
         is Either.Right -> Response.ok(fruit).status(201).build()
     }
 
     @PUT
     @Path("/{uuid}")
     @Transactional
-    fun modify(@PathParam("uuid") uuid: String, fruit: Fruit): Fruit =
-        when (val either = fruitService.modify(uuid, fruit)) {
-            is Either.Left -> throw RuntimeException("data store access error ${either.value}")
-            is Either.Right -> either.value
+    fun modify(@PathParam("uuid") uuid: String, fruit: Fruit): Response =
+        when (val e = fruitService.modify(uuid, fruit)) {
+            is Either.Left -> Response.serverError().entity("data store access error ${e.value}").build()
+            is Either.Right -> Response.ok(e.value).build()
         }
 
 
     @GET
     @Path("/{uuid}")
-    fun getFruit(@PathParam("uuid") uuid: String): Fruit =
-        when (val either = fruitService.findByUuid(uuid)) {
-            is Either.Left -> throw RuntimeException("data store access error ${either.value}")
-            is Either.Right -> either.value
-
+    fun getFruit(@PathParam("uuid") uuid: String): Response =
+        when (val e = fruitService.findByUuid(uuid)) {
+            is Either.Left -> Response.serverError().entity("exception ${e.value}").build()
+            is Either.Right -> Response.ok(e.value).build()
         }
 
     @DELETE
     @Path("/{uuid}")
     @Transactional
     fun delete(@PathParam("uuid") uuid: String): Response =
-        when (val either = fruitService.findByUuid(uuid)) {
-            is Either.Left -> Response.serverError().entity("exception ${either.value}").build()
-            is Either.Right -> {
-                either.value.let { fruitService.delete(it) }
-                Response.status(204).build()
-            }
-
+        when (val e = fruitService.deleteByUuid(uuid)) {
+            is Either.Left -> Response.serverError().entity("exception ${e.value}").build()
+            is Either.Right -> Response.status(204).build()
         }
-
 }
 
 

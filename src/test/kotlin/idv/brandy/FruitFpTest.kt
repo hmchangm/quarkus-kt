@@ -3,6 +3,7 @@ package idv.brandy
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.RestAssured
 import org.hamcrest.CoreMatchers
+import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
 import org.locationtech.jts.util.Assert
@@ -47,8 +48,10 @@ class FruitFpTest {
             .`when`()
             .put("/v2/fruits/fasgrgwrarffdff")
             .then()
-            .extract().response()
-        println("BBB"+response.body.print())
+            .statusCode(200)
+            .body(
+                containsString("AnotherName")
+            )
 
         RestAssured.given()
             .body("""{"id":"fasgrgwrarffdff","name": "Pineapple", "description": "DFS"}""")
@@ -56,7 +59,10 @@ class FruitFpTest {
             .`when`()
             .put("/v2/fruits/fasgrgwrarffdff")
             .then()
-            .statusCode(200)
+            .statusCode(200).body(
+                containsString("Pineapple")
+            )
+
 
     }
 

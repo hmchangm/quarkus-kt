@@ -1,6 +1,7 @@
 package idv.brandy.service
 
 import arrow.core.Either
+import arrow.core.computations.either
 import arrow.core.flatMap
 import arrow.core.flatten
 import idv.brandy.FruitError
@@ -12,7 +13,7 @@ import javax.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
 class FruitService(val fruitRepository: FruitRepository, val fruitJdbc: FruitJdbc) {
-    fun findAll(): Either<DatabaseProblem, List<Fruit>> =
+    suspend fun findAll(): Either<DatabaseProblem, List<Fruit>> =
         Either.catch { fruitRepository.findAll().list<Fruit>() }.mapLeft { DatabaseProblem(it) }
 
     fun save(fruit: Fruit): Either<DatabaseProblem, Fruit> =
@@ -23,9 +24,13 @@ class FruitService(val fruitRepository: FruitRepository, val fruitJdbc: FruitJdb
     fun delete(fruit: Fruit): Either<DatabaseProblem, Unit> =
         Either.catch { fruitRepository.delete(fruit) }.mapLeft { DatabaseProblem(it) }
 
-    fun modify(uuid: String, fruit: Fruit): Either<FruitError, Fruit> =
-        findByUuid(uuid).map { it.copy(name = fruit.name, description = fruit.description) }
-            .map { fruitJdbc.update(it) }.flatten()
+    suspend fun modify(uuid: String, fruit: Fruit): Either<FruitError, Fruit> =
+        either {
+            val one = findByUuid(uuid).bind()
+            val newOne = one.copy(name = fruit.name, description = fruit.description)
+            fruitJdbc.update(newOne).bind()
+        }
+
 
     fun deleteByUuid(uuid: String): Either<FruitError, Unit> =
         findByUuid(uuid).map { delete(it) }

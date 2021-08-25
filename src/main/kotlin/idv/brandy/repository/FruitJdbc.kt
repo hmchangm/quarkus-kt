@@ -1,25 +1,30 @@
 package idv.brandy.repository
 
 import arrow.core.Either
+import com.vladsch.kotlin.jdbc.session
+import com.vladsch.kotlin.jdbc.sqlQuery
+import com.vladsch.kotlin.jdbc.using
 import idv.brandy.FruitError
 import idv.brandy.FruitError.DatabaseProblem
 import idv.brandy.model.Fruit
-import org.sql2o.Query
-import org.sql2o.Sql2o
 import javax.enterprise.context.ApplicationScoped
 import javax.sql.DataSource
 
 
 @ApplicationScoped
-class FruitJdbc(val datasource: DataSource) {
-    var sql2o: Sql2o = Sql2o(datasource)
+class FruitJdbc(val dataSource: DataSource) {
 
     fun update(fruit: Fruit): Either<FruitError, Fruit> =
         Either.catch {
-            sql2o.open().use { conn ->
-                conn.createQuery(
-                    "update fruit set name=:name,description=:description where uuid=:uuid"
-                ).bind(fruit).executeUpdate()
+            using(session(dataSource)) { session ->
+                session.update(
+                    sqlQuery(
+                        "update fruit set name=?,description=? where uuid=?",
+                        fruit.name,
+                        fruit.description,
+                        fruit.uuid
+                    )
+                )
             }
             fruit
         }.mapLeft { DatabaseProblem(it) }

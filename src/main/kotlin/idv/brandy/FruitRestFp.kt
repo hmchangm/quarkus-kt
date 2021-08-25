@@ -3,6 +3,7 @@ package idv.brandy
 import arrow.core.Either
 import idv.brandy.model.Fruit
 import idv.brandy.service.FruitService
+import kotlinx.coroutines.runBlocking
 import javax.transaction.Transactional
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
@@ -14,9 +15,11 @@ import javax.ws.rs.core.Response
 class FruitRestFp(val fruitService: FruitService) {
 
     @GET
-    fun list(): Response = when (val e = fruitService.findAll()) {
-        is Either.Left -> throw RuntimeException("data store access error ${e.value}")
-        is Either.Right -> Response.ok(e.value).build()
+    fun list(): Response = runBlocking {
+        when (val e = fruitService.findAll()) {
+            is Either.Left -> throw RuntimeException("data store access error ${e.value}")
+            is Either.Right -> Response.ok(e.value).build()
+        }
     }
 
     @POST
@@ -29,12 +32,14 @@ class FruitRestFp(val fruitService: FruitService) {
     @PUT
     @Path("/{uuid}")
     fun modify(@PathParam("uuid") uuid: String, fruit: Fruit): Response =
-        when (val e = fruitService.modify(uuid, fruit)) {
-            is Either.Left -> when(val err = e.value){
-                is FruitError.DatabaseProblem -> throw RuntimeException("DB error",err.e)
-                is FruitError.NoThisFruit -> throw RuntimeException("No this fruit ${err.uuid}")
+        runBlocking {
+            when (val e = fruitService.modify(uuid, fruit)) {
+                is Either.Left -> when (val err = e.value) {
+                    is FruitError.DatabaseProblem -> throw RuntimeException("DB error", err.e)
+                    is FruitError.NoThisFruit -> throw RuntimeException("No this fruit ${err.uuid}")
+                }
+                is Either.Right -> Response.ok(e.value).build()
             }
-            is Either.Right -> Response.ok(e.value).build()
         }
 
 
